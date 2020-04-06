@@ -3,3 +3,5 @@
 *.pch
 *.exe
 *.ilk
+bin
+obj
