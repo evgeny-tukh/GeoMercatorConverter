@@ -5,6 +5,43 @@
 
 #define PI 3.1415926535897932384626433832795
 
+double deformatCoordinate (char *source)
+{
+    double value = 1.0e4;
+
+    if (source)
+    {
+        bool  plainValue = true;
+        char *degChar    = strchr (source, ' ');
+
+        if (!degChar)
+            degChar = strchr (source, '°');
+
+        if (!degChar)
+        {
+            value = atof (source);
+        }
+        else
+        {
+            char save = *degChar;
+
+            *degChar = '\0';
+            
+            int    deg = atoi (source);
+            double min = atof (degChar + 1);
+            
+            value = (double) deg + min / 60.0;
+
+            if (strchr (degChar + 1, 'W') || strchr (degChar + 1, 'S') || strchr (degChar + 1, 'w') || strchr (degChar + 1, 's'))
+                value = -value;
+
+            *degChar = save;
+        }
+    }
+
+    return value;
+}
+
 int main (int argCount, char *args [])
 {
     enum Mode { Geo2Mercator = 1, Mercator2Geo } mode = Geo2Mercator;
@@ -25,9 +62,9 @@ int main (int argCount, char *args [])
         if (arg [0] == '-' || arg [0] == '/')
         {
             if (strnicmp (arg + 1, "lat:", 4) == 0)
-                lat = atof (arg + 5);
+                lat = deformatCoordinate (arg + 5);
             else if (strnicmp (arg + 1, "lon:", 4) == 0)
-                lon = atof (arg + 5);
+                lon = deformatCoordinate (arg + 5);
             else if (strnicmp (arg + 1, "m:", 2) == 0)
                 mode = (Mode) atoi (arg + 3);
         }
